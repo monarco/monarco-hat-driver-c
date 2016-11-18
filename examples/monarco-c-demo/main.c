@@ -91,7 +91,7 @@ void sdc_check_init()
         }
         if (done) {
             sdc_init_status = 1;
-            printf("# MONARCO SDC INIT DONE, FW=%08X, HW=%08X, CPUID=%08X%08X\n",
+            printf("MONARCO SDC INIT DONE, FW=%08X, HW=%08X, CPUID=%08X%08X\n",
                     (cxt.sdc_items[SDC_FIXED_FWVERH].value<<16) + cxt.sdc_items[SDC_FIXED_FWVERL].value,
                     (cxt.sdc_items[SDC_FIXED_HWVERH].value<<16) + cxt.sdc_items[SDC_FIXED_HWVERL].value,
                     (cxt.sdc_items[SDC_FIXED_CPUID4].value<<16) + cxt.sdc_items[SDC_FIXED_CPUID3].value,
@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
         return -2;
     }
 
-    fprintf(stderr, "Cycle interval: %f ms\n\n", interval_ns / 1.0e6);
+    printf("Cycle interval: %f ms\n\n", interval_ns / 1.0e6);
 
     monarco_init(&cxt, "/dev/spidev0.0", 4000000, "monarco-c-demo: ");
 
