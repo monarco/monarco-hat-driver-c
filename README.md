@@ -1,6 +1,6 @@
 # libmonarco - C language driver library for the Monarco HAT
 
-VERSION: 1.0, FIRMWARE: 2.004
+VERSION: 1.0, FIRMWARE: 2.005
 
 ## Getting started
 
@@ -11,6 +11,12 @@ Install required build-dependencies on your Raspbian running on Raspberry Pi:
 <pre>
 sudo apt update
 sudo apt install build-essential 
+</pre>
+
+Install Git:
+
+<pre>
+sudo apt install git
 </pre>
 
 Clone the repository:
@@ -33,7 +39,7 @@ Run as root:
 <pre>
 sudo ./monarco-c-demo
 
-### Monarco HAT C library (libmonarco) 'demo' example v1.0
+### Monarco HAT C library (libmonarco) demo example v1.0
 
 Cycle interval: 20.000000 ms
 
