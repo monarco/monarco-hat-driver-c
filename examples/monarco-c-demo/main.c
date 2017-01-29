@@ -68,8 +68,8 @@ void sdc_init()
 
     cxt.sdc_items[SDC_FIXED_CONFIG1] = (monarco_sdc_item_t){ .address = 0x00A, .value = MONARCO_SDC_CONFIG1_RS485TERM, .request = 1 };
 
-    cxt.sdc_items[SDC_FIXED_RS485BAUD] = (monarco_sdc_item_t){ .address = 0x010, .value = 384, .request = 1 };
-    cxt.sdc_items[SDC_FIXED_RS485MODE] = (monarco_sdc_item_t){ .address = 0x011, .value = MONARCO_SDC_RS485_DEFAULT_MODE, .request = 1 };
+    cxt.sdc_items[SDC_FIXED_RS485BAUD] = (monarco_sdc_item_t){ .address = 0x010, .value = 384, .write = 1, .request = 1 };
+    cxt.sdc_items[SDC_FIXED_RS485MODE] = (monarco_sdc_item_t){ .address = 0x011, .value = MONARCO_SDC_RS485_DEFAULT_MODE, .write = 1, .request = 1 };
 
     cxt.sdc_items[SDC_FIXED_CNT1MODE] = (monarco_sdc_item_t){ .address = 0x024, .value = MONARCO_SDC_COUNTER_MODE_OFF, .write = 1, .request = 1 };
     cxt.sdc_items[SDC_FIXED_CNT2MODE] = (monarco_sdc_item_t){ .address = 0x025, .value = MONARCO_SDC_COUNTER_MODE_QUAD, .write = 1, .request = 1 };
