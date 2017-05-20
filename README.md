@@ -1,6 +1,6 @@
 # libmonarco - C language driver library for the Monarco HAT
 
-VERSION: 1.1, FIRMWARE: 2.005
+VERSION: 1.2, FIRMWARE: 2.006
 
 ## Getting started
 
