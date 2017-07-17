@@ -22,7 +22,7 @@ sudo apt install git
 Clone the repository:
 
 <pre>
-git clone git@github.com:monarco/monarco-hat-driver-c.git
+git clone https://github.com/monarco/monarco-hat-driver-c.git
 </pre>
 
 Build the example:
