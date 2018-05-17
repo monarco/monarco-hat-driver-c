@@ -1,6 +1,6 @@
 /***************************************************************************//**
  * @file monarco_crc.h
- * @brief LibMonarco - CRC16
+ * @brief libmonarco - CRC16
  *******************************************************************************
  * @section License
  * Copyright REX Controls s.r.o. http://www.rexcontrols.com
@@ -19,6 +19,7 @@
 extern "C" {
 #endif
 
+/* Return CRC16 checksum (Modbus RTU CRC-16 / CRC-16-IBM) of `*data` with length `length`. */
 uint16_t monarco_crc16(const char *data, int length);
 
 #ifdef __cplusplus

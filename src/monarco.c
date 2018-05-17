@@ -1,6 +1,6 @@
 /***************************************************************************//**
  * @file monarco.c
- * @brief LibMonarco - Main API
+ * @brief libmonarco - Main API
  *******************************************************************************
  * @section License
  * Copyright REX Controls s.r.o. http://www.rexcontrols.com
@@ -31,6 +31,8 @@ int monarco_init(monarco_cxt_t *cxt, const char *spi_device, uint32_t spi_clkfre
 {
     cxt->platform = platform;
 
+    /* Initialize data structures */
+
     memset(&cxt->sdc_items, 0, sizeof(cxt->sdc_items));
     memset(&cxt->tx_data, 0, sizeof(monarco_struct_tx_t));
     memset(&cxt->rx_data, 0, sizeof(monarco_struct_rx_t));
@@ -38,6 +40,8 @@ int monarco_init(monarco_cxt_t *cxt, const char *spi_device, uint32_t spi_clkfre
     cxt->sdc_size = 0;
     cxt->sdc_idx = 0;
     cxt->err_throttle_crc = 0;
+
+    /* Open SPI device */
 
     if ((cxt->spi_fd = open(spi_device, O_RDWR)) < 0)
     {
@@ -68,6 +72,9 @@ int monarco_init(monarco_cxt_t *cxt, const char *spi_device, uint32_t spi_clkfre
     return 0;
 }
 
+/* Send Service Data Channel (SDC) request
+ *   Invoked at each monarco_main(), scan over cxt->sdc_items and process the active ones.
+ */
 static void monarco_sdc_tx(monarco_cxt_t *cxt)
 {
     int idx_last = cxt->sdc_idx;
@@ -80,7 +87,9 @@ static void monarco_sdc_tx(monarco_cxt_t *cxt)
 
     item = &cxt->sdc_items[cxt->sdc_idx];
 
-    // FIXME do not send each request two times (oportunistic tx strategy) - can be problem especially as duplicate writes!
+    /* Wait for response to previous request */
+
+    // FIXME: do not send each request two times (oportunistic tx strategy) - can be problem especially as duplicate writes!
     if (item->busy > 0) {
         if (item->busy < INT_MAX) {
             item->busy++;
@@ -92,24 +101,37 @@ static void monarco_sdc_tx(monarco_cxt_t *cxt)
         return;
     }
 
+    /* Iterate over cxt->sdc_items, check for request trigger events */
+
     while (1) {
+        // Cyclic trigger each factor-th cycle
         if (cxt->sdc_items[cxt->sdc_idx].factor > 0) {
-            break;
+            cxt->sdc_items[cxt->sdc_idx].counter++;
+            if(cxt->sdc_items[cxt->sdc_idx].counter == cxt->sdc_items[cxt->sdc_idx].factor) {
+                cxt->sdc_items[cxt->sdc_idx].counter = 0;
+                break;
+            }
         }
 
+        // Explicit trigger
         if(cxt->sdc_items[cxt->sdc_idx].request != 0) {
             break;
         }
 
+        // Move to next Item
         cxt->sdc_idx++;
         if (cxt->sdc_idx >= cxt->sdc_size) {
             cxt->sdc_idx = 0;
         }
+
+        // Wrap-over detection
         if (cxt->sdc_idx == idx_last) {
             MONARCO_DPRINT(MONARCO_DPF_VERB, "monarco_sdc_tx: No SDC request in this cycle\n");
             return;
         }
     }
+
+    /* Fill Item into cxt->tx_data.sdc_req */
 
     item = &cxt->sdc_items[cxt->sdc_idx];
 
@@ -125,6 +147,8 @@ static void monarco_sdc_tx(monarco_cxt_t *cxt)
     // printf("SDC_TX[%2i]: 0x%03X = W%X E%X 0x%04X\n", cxt->sdc_idx, item->address, item->write, item->error, item->value);
 }
 
+/* Receive Service Data Channel (SDC) response
+ */
 static void monarco_sdc_rx(monarco_cxt_t *cxt)
 {
     if (cxt->sdc_idx >= cxt->sdc_size) {
@@ -152,9 +176,13 @@ static void monarco_sdc_rx(monarco_cxt_t *cxt)
     item->value = cxt->rx_data.sdc_resp.value;
     item->error = cxt->rx_data.sdc_resp.error;
 
-    // printf("SDC_RX[%2i]: 0x%03X = W%X E%X 0x%04X\n", cxt->sdc_idx, item->address, item->write, item->error, item->value);
+    // Move to next Item
+    cxt->sdc_idx++;
+    if (cxt->sdc_idx == cxt->sdc_size) {
+        cxt->sdc_idx = 0;
+    }
 
-    cxt->sdc_idx++; if (cxt->sdc_idx == cxt->sdc_size) { cxt->sdc_idx = 0; }
+    // printf("SDC_RX[%2i]: 0x%03X = W%X E%X 0x%04X\n", cxt->sdc_idx, item->address, item->write, item->error, item->value);
 }
 
 int monarco_main(monarco_cxt_t *cxt)
@@ -166,10 +194,13 @@ int monarco_main(monarco_cxt_t *cxt)
         return -1;
     }
 
+    // prepare SDC request
     monarco_sdc_tx(cxt);
 
+    // calculate CRC
     cxt->tx_data.crc = monarco_crc16((const char *)&(cxt->tx_data), MONARCO_STRUCT_SIZE - 2);
 
+    // SPI transaction structure
     struct spi_ioc_transfer transfer = {
         .tx_buf = (unsigned long)&(cxt->tx_data),
         .rx_buf = (unsigned long)&(rx_data),
@@ -179,6 +210,7 @@ int monarco_main(monarco_cxt_t *cxt)
         .bits_per_word = 8,
     };
 
+    // perform SPI transaction
     int rc = ioctl(cxt->spi_fd, SPI_IOC_MESSAGE(1), &transfer);
 
     if (rc < 1) {
@@ -189,6 +221,7 @@ int monarco_main(monarco_cxt_t *cxt)
     // monarco_util_dump_tx(&cxt->tx_data);
     // monarco_util_dump_rx(&cxt->rx_data);
 
+    // check CRC
     if (rx_data.crc != monarco_crc16((const char *)&(rx_data), MONARCO_STRUCT_SIZE - 2)) {
         if (cxt->err_throttle_crc == 0) {
             MONARCO_DPRINT(MONARCO_DPF_ERROR, "monarco_main: Invalid RX CRC\n");
@@ -206,6 +239,7 @@ int monarco_main(monarco_cxt_t *cxt)
     // copy data only if CRC OK
     cxt->rx_data = rx_data;
 
+    // process SDC response
     monarco_sdc_rx(cxt);
 
     return 0;

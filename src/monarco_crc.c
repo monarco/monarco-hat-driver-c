@@ -1,6 +1,6 @@
 /***************************************************************************//**
  * @file monarco_crc.c
- * @brief LibMonarco - CRC16
+ * @brief libmonarco - CRC16
  *******************************************************************************
  * @section License
  * Copyright REX Controls s.r.o. http://www.rexcontrols.com

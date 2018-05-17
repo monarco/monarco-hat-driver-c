@@ -1,6 +1,6 @@
 /***************************************************************************//**
  * @file monarco_platform.h
- * @brief LibMonarco - Platform specific header - Generic Linux platform
+ * @brief libmonarco - Platform specific header - Generic Linux platform
  *******************************************************************************
  * @section License
  * Copyright REX Controls s.r.o. http://www.rexcontrols.com
@@ -12,6 +12,15 @@
 
 #ifndef LIBMONARCO_PLATFORM_H_
 #define LIBMONARCO_PLATFORM_H_
+
+/* Generic example of platform-specific code for LibMonarco.
+ *
+ * Platform-specific code should provide:
+ *  - MONARCO_DPF_ERROR, MONARCO_DPF_WARNING, MONARCO_DPF_INFO, MONARCO_DPF_VERB, MONARCO_DPF_READ, MONARCO_DPF_WRITE - macros for debug print flags
+ *  - MONARCO_DPRINT(flags, fmtstr, ...) - macro for debug print, you can expect `monarco_cxt_t *cxt` is available when macro is used
+ *
+ * This is intended to integrate debug prints of LibMonarco to logging infrastructure of your application.
+ */
 
 #define MONARCO_DPF_ERROR     0x01
 #define MONARCO_DPF_WARNING   0x02
