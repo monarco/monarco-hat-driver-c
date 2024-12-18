@@ -20,7 +20,7 @@ Install git and build-dependencies on your Raspberry Pi runinng Raspbian:
 
 <pre>
 sudo apt update
-sudo apt install git build-essential 
+sudo apt install git cmake build-essential 
 </pre>
 
 Clone the repository:
@@ -37,7 +37,8 @@ This is a simple demo application for Monarco HAT and C library libmonarco which
 Compile:
 
 <pre>
-cd ~/monarco-hat-driver-c/examples
+mkdir ~/monarco-hat-driver-c/build && cd ~/monarco-hat-driver-c/build
+cmake ..
 make
 </pre>
 
@@ -46,7 +47,7 @@ There should be no build errors.
 Run the example:
 
 <pre>
-sudo ./monarco-blink-demo
+sudo ./examples/monarco-blink-demo
 
 ### Monarco HAT C library (libmonarco) 'blink' example v1.3
 
@@ -72,7 +73,8 @@ This is a complex demo application for Monarco HAT and C library libmonarco whic
 Compile:
 
 <pre>
-cd ~/monarco-hat-driver-c/examples
+mkdir ~/monarco-hat-driver-c/build && cd ~/monarco-hat-driver-c/build
+cmake ..
 make
 </pre>
 
@@ -81,7 +83,7 @@ There should be no build errors.
 Run the example:
 
 <pre>
-sudo ./monarco-complex-demo
+sudo ./examples/monarco-complex-demo
 
 ### Monarco HAT C library (libmonarco) 'complex' example v1.3
 
